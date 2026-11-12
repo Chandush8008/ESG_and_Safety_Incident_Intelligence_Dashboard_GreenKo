@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Greenko ESG & Safety Incident Intelligence Dashboard</title>
+
+  <!-- Modular Stylesheets -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/incidents.css">
+  <link rel="stylesheet" href="/css/studio.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="logo-badge">G</div>
+      <div class="header-titles">
+        <h1>ESG &amp; SAFETY INCIDENT INTELLIGENCE</h1>
+        <div class="header-sub">AI-Powered Renewable Energy Risk Monitoring and Decision Support</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div id="statusBadge" class="status-pill">
+        &#9679; System Online &bull; Loading Incidents...
+      </div>
+    </div>
+  </header>
+
+  <!-- Tab Navigation -->
+  <nav class="nav-bar">
+    <button class="nav-btn active" data-tab="dashboard" onclick="switchTab('dashboard')">
+      &#128202; Dashboard Overview
+    </button>
+    <button class="nav-btn" data-tab="incidents" onclick="switchTab('incidents')">
+      &#128203; Incident Records
+    </button>
+    <button class="nav-btn" data-tab="studio" onclick="switchTab('studio')">
+      &#9889; Analyze Live Incident
+    </button>
+    <button class="nav-btn" data-tab="insights" onclick="switchTab('insights')">
+      &#128269; Management Insights &amp; Patterns
+    </button>
+    <button class="nav-btn" data-tab="evaluation" onclick="switchTab('evaluation')">
+      &#127919; Evaluation &amp; Benchmark
+    </button>
+  </nav>
+
+  <!-- Main Workspace -->
+  <main class="main-container">
+
+    <!-- TAB 1: DASHBOARD OVERVIEW -->
+    <section id="tab-dashboard" class="tab-pane active">
+      <!-- KPI Row -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-title">Total Incidents</div>
+          <div id="kpiTotal" class="kpi-value">--</div>
+          <div class="kpi-sub">Total recorded incidents</div>
+        </div>
+        <div class="kpi-card safety">
+          <div class="kpi-title">Safety Incidents</div>
+          <div id="kpiSafety" class="kpi-value">--</div>
+          <div class="kpi-sub">Worker &amp; site physical safety</div>
+        </div>
+        <div class="kpi-card environment">
+          <div class="kpi-title">Environment Incidents</div>
+          <div id="kpiEnv" class="kpi-value">--</div>
+          <div class="kpi-sub">Spills, leaks &amp; resources</div>
+        </div>
+        <div class="kpi-card compliance">
+          <div class="kpi-title">ESG Compliance</div>
+          <div id="kpiCompliance" class="kpi-value">--</div>
+          <div class="kpi-sub">Audits, rules &amp; procedures</div>
+        </div>
+        <div class="kpi-card high-risk">
+          <div class="kpi-title">High / Critical Risk</div>
+          <div id="kpiHighRisk" class="kpi-value">--</div>
+          <div class="kpi-sub">Needs urgent action</div>
+        </div>
+        <div class="kpi-card patterns">
+          <div class="kpi-title">Repeated Patterns</div>
+          <div id="kpiPatterns" class="kpi-value">--</div>
+          <div class="kpi-sub">Common repeat issues</div>
+        </div>
+      </div>
+
+      <!-- Charts Grid -->
+      <div class="charts-grid">
+        <!-- Category Donut Chart -->
+        <div class="chart-card">
+          <div class="chart-title">Incident Category Breakdown</div>
+          <svg id="categoryChart" class="chart-svg" viewBox="0 0 300 200"></svg>
+          <div id="categoryLegend" class="legend-container"></div>
+        </div>
+
+        <!-- Severity Bar Chart -->
+        <div class="chart-card">
+          <div class="chart-title">Severity Level Breakdown</div>
+          <svg id="severityChart" class="chart-svg" viewBox="0 0 300 190"></svg>
+          <div id="severityLegend" class="legend-container"></div>
+        </div>
+
+        <!-- Risk Tags Frequency -->
+        <div class="chart-card">
+          <div class="chart-title">Top Identified Risk Tags</div>
+          <svg id="riskTagChart" class="chart-svg" viewBox="0 0 300 210"></svg>
+        </div>
+
+        <!-- Risk Heatmap Matrix -->
+        <div class="chart-card">
+          <div class="chart-title">Category vs. Severity Risk Matrix</div>
+          <div id="matrixContainer" style="margin-top: 15px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: INCIDENT RECORDS -->
+    <section id="tab-incidents" class="tab-pane">
+      <div class="table-container">
+        <!-- Toolbar -->
+        <div class="table-toolbar">
+          <div class="search-box">
+            <input type="text" id="incidentSearch" placeholder="Search narrative, ID, keywords..." />
+          </div>
+          <div class="filter-group">
+            <select id="categoryFilter" class="filter-select">
+              <option value="all">All Categories</option>
+              <option value="safety">Safety</option>
+              <option value="environment">Environment</option>
+              <option value="esg_compliance">ESG Compliance</option>
+            </select>
+            <select id="severityFilter" class="filter-select">
+              <option value="all">All Severities</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+            </select>
+            <button class="action-btn" style="background:#e02424;" onclick="resetRecordsToBaseline()">
+              &#8634; Reset to Baseline
+            </button>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 80px;">ID</th>
+              <th>Incident Narrative</th>
+              <th style="width: 140px;">Category</th>
+              <th style="width: 110px;">Severity</th>
+              <th style="width: 110px;">Risk Score</th>
+              <th>Risk Tags</th>
+              <th style="width: 110px;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="incidentsTableBody">
+            <tr><td colspan="7" style="text-align:center; padding:30px;">Loading incident records...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 3: LIVE INCIDENT ANALYSIS STUDIO -->
+    <section id="tab-studio" class="tab-pane">
+      <div class="studio-grid">
+        <!-- Left Column: Input Form -->
+        <div class="studio-input-card">
+          <h2 style="font-size:18px; font-weight:700; color:var(--primary-dark); margin-bottom:8px;">
+            Analyze Live Operational Narrative
+          </h2>
+          <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+            Type or paste an operational incident report from wind, solar, or substation sites.
+          </p>
+
+          <!-- Quick Presets -->
+          <div style="margin-bottom:14px;">
+            <div style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px;">
+              Quick Load Operational Scenarios:
+            </div>
+            <div class="preset-chips">
+              <button class="preset-chip" onclick="loadPreset(0)">&#128094; Solar Walkway Slip</button>
+              <button class="preset-chip" onclick="loadPreset(1)">&#9881;&#65039; Wind Gearbox Oil Spill</button>
+              <button class="preset-chip" onclick="loadPreset(2)">&#128666; Night Cable Trench Near Miss</button>
+              <button class="preset-chip" onclick="loadPreset(3)">&#9937; Solar Array PPE Non-Compliance</button>
+              <button class="preset-chip" onclick="loadPreset(4)">&#9851;&#65039; Contractor Waste Segregation</button>
+              <button class="preset-chip" onclick="loadPreset(5)">&#128293; 33kV Switchyard Fire &amp; Explosion</button>
+            </div>
+          </div>
+
+          <textarea id="liveInputNarrative" class="studio-textarea" placeholder="Describe the incident narrative in detail... (e.g. location, observations, equipment involved, immediate containment actions taken)"></textarea>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px;">
+            <div style="font-size:12px; color:var(--text-muted);">
+              &#10003; Automatic category classification &bull; Severity risk scoring &bull; Decision recommendations
+            </div>
+            <button id="btnAnalyze" class="btn-primary" onclick="submitLiveAnalysis()">
+              <span>&#9889; Run AI Intelligence Analysis</span>
+              <span id="studioLoading" style="display:none; margin-left:8px;">&#9203; Analyzing...</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Column: Results Dossier -->
+        <div class="studio-result-card">
+          <div id="studioEmptyState" class="empty-state">
+            <div class="empty-icon">&#128302;</div>
+            <div style="font-weight:700; font-size:16px; margin-bottom:6px;">AI Intelligence Ready</div>
+            <p style="max-width:340px; margin:0 auto; font-size:13px;">
+              Enter a narrative or pick one of the scenarios on the left, then click <strong>Run AI Intelligence Analysis</strong>.
+            </p>
+          </div>
+          <div id="studioResultContent" style="display:none;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: MANAGEMENT INSIGHTS & PATTERNS -->
+    <section id="tab-insights" class="tab-pane">
+      <div style="margin-bottom:20px;">
+        <h2 style="font-size:18px; font-weight:700; color:var(--primary-dark); margin-bottom:4px;">
+          Strategic Safety &amp; ESG Management Insights
+        </h2>
+        <p style="font-size:13px; color:var(--text-muted);">
+          Key management takeaways and repeat issues detected across renewable energy operations.
+        </p>
+      </div>
+
+      <!-- Management Priorities Grid -->
+      <div style="margin-bottom:28px;">
+        <h3 style="font-size:15px; font-weight:700; color:#1e293b; margin-bottom:12px;">
+          &#127919; High-Priority Action Items for Management
+        </h3>
+        <div id="managementInsightsContainer" class="insights-grid">
+          <div style="color:#64748b; font-size:13px;">Loading management insights...</div>
+        </div>
+      </div>
+
+      <!-- Recurring Patterns Grid -->
+      <div>
+        <h3 style="font-size:15px; font-weight:700; color:#1e293b; margin-bottom:12px;">
+          &#128260; Recurring Incident Patterns &amp; Systemic Risks
+        </h3>
+        <div id="patternsContainer" class="insights-grid">
+          <div style="color:#64748b; font-size:13px;">Loading recurring patterns...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: EVALUATION & BENCHMARK (WITH ON-DEMAND TEST AI) -->
+    <section id="tab-evaluation" class="tab-pane">
+      <div class="eval-card" style="margin-bottom:20px;">
+        <h2 style="font-size:18px; font-weight:700; color:var(--primary-dark); margin-bottom:6px;">
+          Validation &amp; Testing
+        </h2>
+        <p style="font-size:13.5px; color:#475569; line-height:1.5;">
+          Clear testing to check how accurately the AI classifies safety, environmental, and ESG incidents.
+        </p>
+      </div>
+
+      <!-- ON-DEMAND "TEST AI" COMPONENT -->
+      <div class="eval-card" style="margin-bottom:24px; border-left:4px solid var(--accent-emerald);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+          <div>
+            <h3 style="font-size:16px; font-weight:700; color:var(--primary-dark);">
+              &#129514; Test AI Accuracy (On-Demand)
+            </h3>
+            <p style="font-size:13px; color:#64748b; margin-top:2px;">
+              Test the AI at any time. Type any scenario, choose what you expect, and check if the AI gives the accurate answer.
+            </p>
+          </div>
+        </div>
+
+        <!-- Quick Test Buttons -->
+        <div style="margin-bottom:14px;">
+          <div style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px;">
+            Quick Test Examples:
+          </div>
+          <div class="preset-chips">
+            <button class="preset-chip" onclick="loadTestPreset(0)">&#129692; Working at Height without Harness</button>
+            <button class="preset-chip" onclick="loadTestPreset(1)">&#9881;&#65039; Turbine Gearbox Oil Leak</button>
+            <button class="preset-chip" onclick="loadTestPreset(2)">&#9851;&#65039; Oily Rags Mixed Waste Audit</button>
+            <button class="preset-chip" onclick="loadTestPreset(3)">&#128094; Inverter Room Floor Slip</button>
+            <button class="preset-chip" onclick="loadTestPreset(4)">&#128293; 33kV Switchyard Fire &amp; Explosion</button>
+          </div>
+        </div>
+
+        <!-- Test Form -->
+        <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:12px; margin-bottom:14px;">
+          <div>
+            <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">
+              Incident Text to Test:
+            </label>
+            <textarea id="testAiNarrative" style="width:100%; height:80px; padding:10px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; resize:vertical;" placeholder="Enter any test narrative here..."></textarea>
+          </div>
+          <div>
+            <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">
+              Expected Category:
+            </label>
+            <select id="testExpectedCategory" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; background:#fff;">
+              <option value="safety">Safety</option>
+              <option value="environment">Environment</option>
+              <option value="esg_compliance">ESG Compliance</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;">
+              Expected Severity:
+            </label>
+            <select id="testExpectedSeverity" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; background:#fff;">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end;">
+          <button id="btnRunTestAi" class="btn-primary" style="padding:10px 22px; font-size:13px;" onclick="runCustomAiTest()">
+            <span>&#129514; Test AI Now</span>
+          </button>
+        </div>
+
+        <!-- Real-Time AI Test Result Comparison Box -->
+        <div id="testAiResultBox" style="display:none; margin-top:16px;"></div>
+      </div>
+
+      <!-- Benchmark Summary Metric Cards -->
+      <div class="eval-grid" style="margin-bottom:24px;">
+        <div class="eval-kpi-card">
+          <div class="eval-kpi-title">Benchmark Reference Size</div>
+          <div id="evalSampleSize" class="eval-kpi-value">--</div>
+          <div class="eval-kpi-sub">Reference cases evaluated</div>
+        </div>
+        <div class="eval-kpi-card">
+          <div class="eval-kpi-title">Category Accuracy</div>
+          <div id="evalCatAcc" class="eval-kpi-value" style="color:#047857;">--</div>
+          <div class="eval-kpi-sub">Correct category predictions</div>
+        </div>
+        <div class="eval-kpi-card">
+          <div class="eval-kpi-title">Severity Accuracy</div>
+          <div id="evalSevAcc" class="eval-kpi-value" style="color:#047857;">--</div>
+          <div class="eval-kpi-sub">Correct severity predictions</div>
+        </div>
+        <div class="eval-kpi-card">
+          <div class="eval-kpi-title">Unseen Cases Pass Rate</div>
+          <div id="evalUnseenPass" class="eval-kpi-value" style="color:#047857;">--</div>
+          <div class="eval-kpi-sub">8 realistic unseen test cases</div>
+        </div>
+      </div>
+
+      <!-- 8 Unseen Cases Verification Table -->
+      <div class="eval-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+          <div>
+            <h3 style="font-size:16px; font-weight:700; color:var(--primary-dark);">
+              8 Realistic Unseen Operational Test Cases
+            </h3>
+            <p style="font-size:12.5px; color:#64748b;">
+              These 8 realistic operational scenarios verify that the AI works correctly on unseen cases.
+            </p>
+          </div>
+          <button id="btnRunBenchmark" class="action-btn" style="background:#059669; color:#fff;" onclick="runBenchmarkVerification()">
+            <span>&#9654;&#65039; Re-test All 8 Benchmark Cases Live</span>
+          </button>
+        </div>
+
+        <table class="data-table" style="font-size:12.5px;">
+          <thead>
+            <tr>
+              <th style="width: 70px;">Test ID</th>
+              <th style="width: 170px;">Scenario</th>
+              <th>Incident Text</th>
+              <th style="width: 130px;">Category</th>
+              <th style="width: 120px;">Severity</th>
+              <th style="width: 90px;">Result</th>
+            </tr>
+          </thead>
+          <tbody id="unseenTestTableBody">
+            <tr><td colspan="6" style="text-align:center; padding:20px;">Loading test cases...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Incident Detail Modal Dossier -->
+  <div id="incidentModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modalIncidentId" style="font-size:16px; font-weight:700;">Incident Dossier</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div id="modalIncidentBody" class="modal-body">
+        <!-- Dynamically populated by incidentsTable.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div><strong>Greenko ESG &amp; Safety Incident Intelligence Dashboard</strong> &bull; Renewable Energy Operations Decision Support</div>
+    <div style="font-size:11px; color:#94a3b8; margin-top:4px;">FastAPI Backend &bull; Modular JavaScript UI &bull; Fully Functional Offline</div>
+  </footer>
+
+  <!-- Modular Component Scripts -->
+  <script src="/js/config.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/components/kpiCards.js"></script>
+  <script src="/js/components/charts.js"></script>
+  <script src="/js/components/incidentsTable.js"></script>
+  <script src="/js/components/liveStudio.js"></script>
+  <script src="/js/components/insights.js"></script>
+  <script src="/js/components/testAi.js"></script>
+  <script src="/js/app.js"></script>
+
+</body>
+</html>
