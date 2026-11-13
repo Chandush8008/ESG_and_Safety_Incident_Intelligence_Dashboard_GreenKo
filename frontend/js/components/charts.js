@@ -77,11 +77,11 @@ function renderSeverityBar(dist) {
 
   let svgHtml = '';
   let legendHtml = '';
-  const barWidth = 40;
-  const spacing = 65;
-  const startX = 35;
-  const chartBottom = 160;
-  const maxBarHeight = 120;
+  const barWidth = 44;
+  const spacing = 68;
+  const startX = 26;
+  const chartBottom = 155;
+  const maxBarHeight = 110;
 
   labels.forEach((sev, i) => {
     const val = dist[sev] || 0;
@@ -91,11 +91,11 @@ function renderSeverityBar(dist) {
     const color = colors[sev];
 
     svgHtml += `
-      <rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" fill="${color}" rx="4">
+      <rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" fill="${color}" rx="5">
         <title>${sev.toUpperCase()}: ${val}</title>
       </rect>
-      <text x="${x + barWidth/2}" y="${y - 6}" text-anchor="middle" font-size="12" font-weight="700" fill="#0f172a">${val}</text>
-      <text x="${x + barWidth/2}" y="${chartBottom + 16}" text-anchor="middle" font-size="11" fill="#64748b" font-weight="600">${sev.toUpperCase()}</text>
+      <text x="${x + barWidth/2}" y="${y - 8}" text-anchor="middle" font-size="13" font-weight="800" fill="#0f172a">${val}</text>
+      <text x="${x + barWidth/2}" y="${chartBottom + 18}" text-anchor="middle" font-size="11.5" fill="#475569" font-weight="700">${sev.toUpperCase()}</text>
     `;
 
     legendHtml += `
@@ -106,7 +106,7 @@ function renderSeverityBar(dist) {
     `;
   });
 
-  svgHtml += `<line x1="20" y1="${chartBottom}" x2="280" y2="${chartBottom}" stroke="#cbd5e1" stroke-width="1.5" />`;
+  svgHtml += `<line x1="16" y1="${chartBottom}" x2="284" y2="${chartBottom}" stroke="#cbd5e1" stroke-width="1.5" />`;
 
   svg.innerHTML = svgHtml;
   if (legend) legend.innerHTML = legendHtml;
@@ -121,18 +121,21 @@ function renderRiskTagBars(tagDist) {
 
   const maxVal = Math.max(...entries.map(e => e[1]), 1);
   let svgHtml = '';
-  const barHeight = 22;
-  const startY = 15;
-  const rowGap = 40;
+  const barHeight = 20;
+  const startY = 16;
+  const rowGap = 36;
+  const maxBarWidth = 135;
+  const barStartX = 145;
 
   entries.forEach(([tag, val], idx) => {
     const y = startY + idx * rowGap;
-    const width = (val / maxVal) * 160;
+    const width = Math.max((val / maxVal) * maxBarWidth, 8);
 
     svgHtml += `
-      <text x="10" y="${y + 16}" font-size="11" font-weight="600" fill="#334155">${tag}</text>
-      <rect x="150" y="${y}" width="${width}" height="${barHeight}" fill="#0f3d2e" rx="4"></rect>
-      <text x="${160 + width}" y="${y + 16}" font-size="11" font-weight="700" fill="#0f3d2e">${val}</text>
+      <text x="10" y="${y + 15}" font-size="11.5" font-weight="600" fill="#1e293b">${tag}</text>
+      <rect x="${barStartX}" y="${y}" width="${maxBarWidth}" height="${barHeight}" fill="#f1f5f9" rx="4"></rect>
+      <rect x="${barStartX}" y="${y}" width="${width}" height="${barHeight}" fill="#0f3d2e" rx="4"></rect>
+      <text x="${barStartX + width + 10}" y="${y + 15}" font-size="13" font-weight="800" fill="#0f172a">${val}</text>
     `;
   });
 
@@ -143,36 +146,57 @@ function renderRiskMatrixHeatmap(matrix) {
   const container = document.getElementById('matrixContainer');
   if (!container || !matrix) return;
 
-  const categories = ['safety', 'environment', 'esg_compliance'];
+  const categories = [
+    { key: 'safety', label: 'Safety' },
+    { key: 'environment', label: 'Environment' },
+    { key: 'esg_compliance', label: 'ESG Compliance' }
+  ];
   const severities = ['low', 'medium', 'high', 'critical'];
 
-  let html = '<table style="width:100%; border-collapse:collapse; text-align:center; font-size:12px;">';
-  html += '<thead><tr><th style="text-align:left; background:#f1f5f9;">Category \\ Severity</th>';
+  let html = '<div class="matrix-container">';
+  html += '<table class="matrix-table">';
+  html += '<thead><tr>';
+  html += '<th class="matrix-corner">Category</th>';
   severities.forEach(s => {
-    html += `<th style="background:#f1f5f9; text-transform:capitalize;">${s}</th>`;
+    html += `<th>${s.charAt(0).toUpperCase() + s.slice(1)}</th>`;
   });
   html += '</tr></thead><tbody>';
 
-  categories.forEach(cat => {
-    html += `<tr><td style="text-align:left; font-weight:600; text-transform:capitalize; background:#fafafa;">${cat.replace('_', ' ')}</td>`;
+  categories.forEach(catObj => {
+    const cat = catObj.key;
+    html += `<tr><td class="cat-label">${catObj.label}</td>`;
     severities.forEach(sev => {
       const count = matrix[cat] && matrix[cat][sev] ? matrix[cat][sev] : 0;
-      let cellBg = '#ffffff';
-      let textColor = '#64748b';
-      let fontBold = 'normal';
+      let cellBg = '#f8fafc';
+      let textColor = '#94a3b8';
+      let fontBold = '600';
+      let border = '1px solid #e2e8f0';
 
       if (count > 0) {
-        fontBold = '700';
-        if (sev === 'critical') { cellBg = '#fee2e2'; textColor = '#b91c1c'; }
-        else if (sev === 'high') { cellBg = '#ffedd5'; textColor = '#c2410c'; }
-        else if (sev === 'medium') { cellBg = '#fef3c7'; textColor = '#b45309'; }
-        else { cellBg = '#dcfce7'; textColor = '#15803d'; }
+        fontBold = '800';
+        if (sev === 'critical') {
+          cellBg = '#fee2e2';
+          textColor = '#b91c1c';
+          border = '1px solid #fca5a5';
+        } else if (sev === 'high') {
+          cellBg = '#ffedd5';
+          textColor = '#c2410c';
+          border = '1px solid #fdba74';
+        } else if (sev === 'medium') {
+          cellBg = '#fef3c7';
+          textColor = '#b45309';
+          border = '1px solid #fcd34d';
+        } else {
+          cellBg = '#dcfce7';
+          textColor = '#15803d';
+          border = '1px solid #86efac';
+        }
       }
-      html += `<td style="padding:10px; background:${cellBg}; color:${textColor}; font-weight:${fontBold}; border:1px solid #e2e8f0;">${count}</td>`;
+      html += `<td class="count-cell" style="background:${cellBg}; color:${textColor}; font-weight:${fontBold}; border:${border};">${count}</td>`;
     });
     html += '</tr>';
   });
 
-  html += '</tbody></table>';
+  html += '</tbody></table></div>';
   container.innerHTML = html;
 }

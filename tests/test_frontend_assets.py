@@ -12,6 +12,7 @@ def test_frontend_root():
     assert "<!DOCTYPE html>" in res.text
     assert "/css/main.css" in res.text
     assert "/js/app.js" in res.text
+    assert res.headers.get("cache-control") == "no-cache, no-store, must-revalidate"
     # Verify markup elements
     assert 'class="logo-badge">G</div>' in res.text
     assert 'class="nav-bar">' in res.text

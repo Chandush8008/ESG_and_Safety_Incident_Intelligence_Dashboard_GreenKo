@@ -20,6 +20,14 @@ from backend.services.evaluation import evaluation_service, UNSEEN_TEST_CASES
 client = TestClient(app)
 
 
+@pytest.fixture(autouse=True)
+def reset_state_to_baseline():
+    """Ensure tests run against a clean baseline of 6 records."""
+    data_service.reset_to_baseline()
+    yield
+    data_service.reset_to_baseline()
+
+
 # ============================================================================
 # Unit Tests: Data Service
 # ============================================================================

@@ -290,7 +290,7 @@ The backend exposes fully documented RESTful APIs. Interactive Swagger UI is ava
 
 5. **Start the Application Server:**
    ```bash
-   uvicorn backend.app:app --host 0.0.0.0 --port 8000 --reload
+   uvicorn backend.app:app --host 127.0.0.1 --port 8000 --reload
    ```
 
 6. **Access the Application:**
@@ -335,31 +335,4 @@ The repository is pre-configured for automated continuous deployment on [Railway
 
 ---
 
-## 12. Assumptions, Limitations & Production-Readiness Gaps
 
-### Assumptions
-1. **Domain Context:** Narratives originate from utility-scale solar, wind, and transmission operations where safety precautions and hierarchy of controls apply.
-2. **Offline Resilience:** The application is architected to run completely in self-contained environments without relying on third-party SaaS embeddings or internet connectivity.
-
-### Limitations
-1. **Corpus Size:** The starter dataset contains 6 records. While supplemented with an 8-case unseen test suite, this is not a substitute for an enterprise database of 10,000+ incident logs.
-2. **Lexical Paraphrase Sensitivity:** TF-IDF cosine similarity measures vocabulary and n-gram overlap; heavily metaphorical descriptions with zero overlapping terms require dense semantic embeddings.
-3. **Indicative Root-Cause:** AI inferences are categorized as *"possible contributing factors"*; formal EHS incident investigations require on-site forensic analysis.
-
-### Enterprise Production Roadmap
-1. **Enterprise LLM / SLM Fine-Tuning:** Fine-tune a lightweight on-premise model (e.g., Llama-3.2-3B or Mistral-7B) using LoRA on Greenko's historical EHS repository.
-2. **Vector Database Integration:** Replace in-memory TF-IDF with an on-premise vector store (Qdrant or Chroma) using domain-adapted embeddings (`bge-base` or `all-MiniLM-L6-v2`).
-3. **Telemetry & SCADA Ingestion:** Ingest real-time inverter alarms, wind turbine vibration sensors, and water flow telemetry directly into the incident scoring pipeline.
-4. **Mobile Field Reporting App:** Provide an offline-first mobile PWA for site engineers with voice-to-text narrative recording.
-
----
-
-## 13. Summary of Deliverables
-
-- [x] Complete, tested Python backend with modular architecture (`backend/services/`)
-- [x] Preprocessing, classification, severity scoring, RAG retrieval, summarization, and recommendation modules
-- [x] Professional Greenko-themed analytics dashboard UI with native SVG charts (`frontend/index.html`)
-- [x] Full suite of 22 automated tests with 100% pass rate (`tests/test_backend.py`)
-- [x] Evaluation on bundled data and 8 unseen operational scenarios (`/api/evaluation`)
-- [x] Preserved starter endpoints (`/api/demo`, `/api/run`) with full backward compatibility
-- [x] Complete deployment readiness configuration for Railway (`Procfile`, `railway.json`)

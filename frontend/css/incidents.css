@@ -65,14 +65,14 @@
   box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
 }
 
-.data-table, table {
+.data-table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
   font-size: 13px;
 }
 
-th {
+.data-table th {
   background: #f8fafc;
   padding: 12px 18px;
   font-weight: 700;
@@ -83,13 +83,13 @@ th {
   letter-spacing: 0.5px;
 }
 
-td {
+.data-table td {
   padding: 14px 18px;
   border-bottom: 1px solid var(--border-color);
   vertical-align: middle;
 }
 
-tr:hover td { background: #fbfdff; }
+.data-table tr:hover td { background: #fbfdff; }
 
 .narrative-col {
   max-width: 380px;
