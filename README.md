@@ -60,47 +60,62 @@ The primary technical and operational objectives of the platform are:
 
 ---
 
-## 5. Architectural Design
+## 5. Project File Structure
 
-The backend is structured into modular, decoupled services adhering to Single Responsibility and Dependency Inversion principles:
+The repository is organized into the following backend, frontend, data, and documentation files:
 
-```
+```text
 05_esg_safety_incident_intelligence_dashboard/
-│
-├── backend/
-│   ├── __init__.py                 # Package initializer
-│   ├── app.py                      # FastAPI routes, middleware, and pipeline coordinator
-│   ├── config.py                   # Global constants, paths, thresholds, and server configs
-│   ├── models.py                   # Pydantic data schemas for requests and responses
-│   └── services/
-│       ├── __init__.py
-│       ├── data_service.py         # CSV loading, validation, deduplication, and caching
-│       ├── preprocessing.py        # Text cleaning, tokenization, technical term preservation
-│       ├── classification.py       # Hybrid rule-based & TF-IDF similarity classifier
-│       ├── severity_analyzer.py    # Negation-aware contextual risk scorer
-│       ├── summarizer.py           # Extractive & template-based structured summarizer
-│       ├── recommendation_engine.py# Hierarchy-of-controls action generator & risk tagger
-│       ├── pattern_analyzer.py     # Recurring pattern detector & management insights
-│       ├── retrieval_service.py    # Lightweight TF-IDF RAG retrieval service
-│       └── evaluation.py           # Evaluation on bundled data & 8 unseen test cases
-│
-├── data/
-│   └── safety_esg_incidents.csv    # Benchmark incident dataset (6 reference records)
-│
-├── frontend/
-│   └── index.html                  # Enterprise Greenko-themed analytics dashboard UI
-│
-├── tests/
-│   └── test_backend.py             # 22 automated unit and integration tests (Pytest)
-│
-├── candidate_task.md               # Original task instructions
-├── case_study.html                 # Technical case study reference document
-├── evaluation_rubric.md            # Screening rubric
-├── submission_instructions.md      # Submission instructions
-├── Procfile                        # Railway web process command
-├── railway.json                    # Railway configuration schema
-├── requirements.txt                # Pinned Python package dependencies
-└── README.md                       # Comprehensive system documentation
+- backend/
+  - __init__.py                 # Marks the backend as a Python package
+  - app.py                      # Defines the FastAPI application and API routes
+  - config.py                   # Stores shared paths and application settings
+  - models.py                   # Defines Pydantic request and response models
+  - services/
+  - __init__.py             # Marks the services folder as a Python package
+  - classification.py       # Classifies incident narratives
+  - data_service.py          # Loads and validates incident data
+  - evaluation.py            # Evaluates analysis against reference cases
+  - pattern_analyzer.py      # Finds recurring incident patterns and insights
+  - preprocessing.py         # Cleans and prepares incident text
+  - recommendation_engine.py # Generates risk tags and recommended actions
+  - retrieval_service.py     # Retrieves similar historical incidents
+  - severity_analyzer.py     # Scores incident severity and risk
+  - summarizer.py            # Creates concise structured incident summaries
+- data/
+  - dynamic_incidents.csv        # Additional incident records for dashboard analysis
+  - safety_esg_incidents.csv     # Main safety and ESG incident dataset
+- frontend/
+  - index.html                   # Defines the dashboard page
+  - css/
+  - dashboard.css            # Styles dashboard layout and KPI sections
+  - incidents.css            # Styles incident lists and tables
+  - main.css                 # Provides shared page styles
+  - studio.css               # Styles the live analysis studio
+  - js/
+  - api.js                   # Connects the frontend to backend endpoints
+  - app.js                   # Initializes and coordinates dashboard features
+  - config.js                # Stores frontend configuration values
+  - components/
+  - charts.js            # Renders dashboard charts
+  - incidentsTable.js    # Renders incident records in a table
+  - insights.js          # Displays patterns and recommendations
+  - kpiCards.js          # Renders key performance indicator cards
+  - liveStudio.js        # Handles live incident analysis interactions
+  - testAi.js            # Provides the AI analysis testing interface
+- tests/
+  - test_backend.py              # Tests backend routes and analysis behavior
+  - test_frontend_assets.py      # Checks that required frontend assets exist
+- candidate_task.md                # Contains the original assessment task
+- case_study.html                  # Presents the project case study
+- evaluation_rubric.md             # Contains the assessment rubric
+- submission_instructions.md       # Explains how to submit the project
+- Procfile                         # Defines the command used to start the web service
+- railway.json                     # Configures Railway deployment
+- requirements.txt                 # Lists required Python packages
+- README.md                        # Documents the project and how to run it
+- uvicorn-error.log                # Captures Uvicorn server errors
+- uvicorn.log                      # Captures Uvicorn server output
 ```
 
 ---
